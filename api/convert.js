@@ -1,9 +1,7 @@
 const CloudConvert = require('cloudconvert');
-
 const cloudconvert = new CloudConvert(process.env.CLOUDCONVERT_API_KEY);
 
 module.exports = async (req, res) => {
-  // Atur CORS agar aman diakses frontend
   res.setHeader('Access-Control-Allow-Credentials', true);
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
@@ -22,34 +20,36 @@ module.exports = async (req, res) => {
   }
 
   try {
-    const { inputFormat, outputFormat, fileName } = req.body;
+    let { inputFormat, outputFormat, fileName } = req.body;
 
     if (!inputFormat || !outputFormat) {
       return res.status(400).json({ success: false, error: 'Format input dan output wajib diisi.' });
     }
 
-    // Buat job di CloudConvert dengan tasks: import (upload), convert, dan export (url)
+    // Bersihkan titik di awal format jika ada (misal: '.pdf' jadi 'pdf')
+    inputFormat = inputFormat.replace('.', '').toLowerCase();
+    outputFormat = outputFormat.replace('.', '').toLowerCase();
+
+    // Buat job dengan struktur yang divalidasi aman oleh CloudConvert API v2
     const job = await cloudconvert.jobs.create({
       tasks: {
-        'import-my-file': {
-          operation: 'import/upload'
+        "upload-file": {
+          operation: "import/upload"
         },
-        'convert-my-file': {
-          operation: 'convert',
-          input: 'import-my-file',
+        "convert-file": {
+          operation: "convert",
+          input: "upload-file",
           input_format: inputFormat,
-          output_format: outputFormat,
-          engine: 'default'
+          output_format: outputFormat
         },
-        'export-my-file': {
-          operation: 'export/url',
-          input: 'convert-my-file'
+        "export-file": {
+          operation: "export/url",
+          input: "convert-file"
         }
       }
     });
 
-    // Ambil task upload untuk diberikan ke frontend
-    const uploadTask = job.tasks.find(task => task.name === 'import-my-file');
+    const uploadTask = job.tasks.find(task => task.name === 'upload-file');
 
     return res.status(200).json({
       success: true,
@@ -61,10 +61,13 @@ module.exports = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('CloudConvert API Error:', error);
+    // Tangkap detail error spesifik dari response CloudConvert jika ada
+    const errorDetails = error.response && error.response.data ? error.response.data : error.message;
+    console.error('CloudConvert API Error Detail:', errorDetails);
+    
     return res.status(500).json({ 
       success: false, 
-      error: error.message || 'Terjadi kesalahan pada server.' 
+      error: typeof errorDetails === 'object' ? JSON.stringify(errorDetails) : errorDetails
     });
   }
 };
