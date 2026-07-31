@@ -1,95 +1,65 @@
-# Document Converter
+# Convert Station
 
-A production-ready, lightweight web-based document conversion service built with Node.js, Express, and Multer, powered by the LibreOffice CLI engine. Designed with a minimalist, clean aesthetic and containerized for cloud deployment.
-
----
-
-## Overview
-
-Document Converter provides a streamlined interface for transforming files across multiple document formats. The architecture utilizes local system processes for high-fidelity rendering and conversion, wrapped in an Express backend and served through a minimalist single-page interface.
+A high-performance, privacy-focused document conversion web application built with Node.js and hosted on Vercel. It leverages the CloudConvert API with an optimized direct-upload architecture and immediate data purging to ensure user documents remain private and secure.
 
 ---
 
-## Technical Specifications
+## Features
 
-- **Backend Runtime**: Node.js, Express.js
-- **File Management**: Multer (temporary local storage with automated lifecycle cleanup)
-- **Conversion Engine**: LibreOffice CLI (`soffice`), Poppler-utils (`pdftotext`)
-- **Frontend**: HTML5, Vanilla JavaScript, CSS3 (Monochrome design system)
+* **Privacy First (Immediate Deletion)**: Configured with automated clean-up tasks via CloudConvert API v2 to purge uploaded and converted files from remote servers instantly once processing concludes.
+* **Direct-to-Cloud Uploads**: Bypasses Vercel's payload limits (4.5MB) by uploading large documents (up to 100MB) directly from the browser to CloudConvert storage.
+* **Client-Side Drag & Drop**: Intuitive user interface supporting file drag-and-drop mechanics and automatic format mapping based on input extensions.
+* **Zero Server Footprint**: Vercel serverless functions act exclusively as an orchestration bridge, meaning server instances never store or cache heavy document binaries.
 
 ---
 
 ## Supported Formats
 
-- **Documents**: `.docx`, `.doc`, `.odt`, `.txt`, `.rtf`, `.html`, `.pdf`
-- **Spreadsheets**: `.xlsx`, `.xls`, `.ods`, `.csv`
-- **Presentations**: `.pptx`, `.ppt`, `.odp`
+| Input Format | Compatible Output Formats |
+| :--- | :--- |
+| `.docx` | PDF, `.doc`, `.txt`, `.odt` |
+| `.doc` | PDF, `.docx`, `.txt` |
+| `.pdf` | `.docx`, `.txt`, PNG, JPG |
+| `.xlsx` | CSV, PDF, `.xls` |
+| `.csv` | XLSX, PDF, `.txt` |
+| `.pptx` | PDF, `.ppt` |
+| `.txt` | PDF, `.docx` |
 
 ---
 
-## Directory Structure
+## Project Structure
 
 ```text
-file-converter/
+├── api/
+│   ├── convert.js       # Initializes CloudConvert job and immediate delete tasks
+│   └── status.js        # Polls ongoing job progress and fetches download links
 ├── public/
-│   ├── index.html        # Frontend user interface
-│   └── favicon.svg       # Minimalist SVG favicon
-├── uploads/              # Transient processing directory
-├── .dockerignore         # Build exclusion configuration
-├── .gitignore            # Version control exclusion rules
-├── Dockerfile            # Container definition for Linux environments
-├── package.json          # Project dependencies and scripts
-└── server.js             # Core Express application server
+│   ├── index.html       # Frontend layout and user interface
+│   ├── script.js        # Client-side logic, drag-and-drop, and API integration
+│   └── style.css        # Styling and layout design
+└── package.json         # Project dependencies and metadata
+
+```
+## Getting Started
+**Prerequisites**
+- Node.js installed locally.
+- A free or paid CloudConvert API Key.
+
 ```
 
----
-
-## Local Development
-
-### Prerequisites
-
-- Node.js (Version 16 or higher)
-- LibreOffice (Installed locally; ensure executable paths are accessible)
-
-### Installation
-
+**Installation & Local Development**
 1. Clone the repository:
-
-   ```bash
-   git clone <repository-url>
-   cd file-converter
-   ```
-
+```text
+git clone [https://github.com/your-username/your-repo-name.git](https://github.com/your-username/your-repo-name.git)
+cd your-repo-name
+```
 2. Install dependencies:
+```text
+npm install
+```
+3. Set up environment variables:
+Create a .env file in the root directory and add your CloudConvert API key:
+```text
+CLOUDCONVERT_API_KEY=your_api_key_here
+```
 
-   ```bash
-   npm install
-   ```
-
-3. Initialize the development server:
-
-   ```bash
-   node server.js
-   ```
-
-4. Access the application in your browser:
-   ```text
-   http://localhost:3000
-   ```
-
----
-
-## Production Deployment (Render / Docker)
-
-Because the conversion engine relies on system-level binary dependencies, deployment requires a containerized environment.
-
-1. Push the repository to a remote version control provider (GitHub).
-2. Create a new Web Service on Render.
-3. Link the repository and select **Docker** as the environment runtime.
-4. Deploy the service. Render will parse the `Dockerfile`, install LibreOffice and Poppler-utils, and initialize the application instance.
-
----
-
-## License
-
-This project is licensed under the MIT License. See the LICENSE file for details.
