@@ -1,6 +1,5 @@
-import CloudConvert from 'cloudconvert';
+const CloudConvert = require('cloudconvert');
 
-// Inisialisasi CloudConvert menggunakan API Key dari Environment Variables Vercel
 const cloudconvert = new CloudConvert(process.env.CLOUDCONVERT_API_KEY);
 
 export default async function handler(req, res) {
@@ -16,7 +15,6 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'File tidak ditemukan.' });
     }
 
-    // 1. Buat Job konversi di CloudConvert
     let job = await cloudconvert.jobs.create({
       tasks: {
         'import-my-file': {
@@ -37,10 +35,8 @@ export default async function handler(req, res) {
       }
     });
 
-    // 2. Tunggu proses konversi selesai di server CloudConvert
     job = await cloudconvert.jobs.wait(job.id);
 
-    // 3. Ambil URL hasil file yang sudah dikonversi
     const exportTask = job.tasks.find(task => task.operation === 'export/url' && task.status === 'finished');
     
     if (!exportTask || !exportTask.result.files.length) {
@@ -60,7 +56,7 @@ export default async function handler(req, res) {
     console.error('CloudConvert Error:', error);
     return res.status(500).json({ 
       success: false, 
-      error: 'Terjadi kesalahan saat memproses konversi file.' 
+      error: error.message || 'Terjadi kesalahan saat memproses konversi file.' 
     });
   }
 }
