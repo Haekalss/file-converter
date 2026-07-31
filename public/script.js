@@ -204,8 +204,6 @@ function downloadFile() {
   const a = document.createElement('a');
   a.href = downloadUrl;
   a.download = outputFileName || 'hasil-konversi';
-  a.target = '_blank';
-  
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
