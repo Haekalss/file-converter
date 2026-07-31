@@ -30,7 +30,7 @@ module.exports = async (req, res) => {
     inputFormat = inputFormat.replace('.', '').toLowerCase();
     outputFormat = outputFormat.replace('.', '').toLowerCase();
 
-    // Buat job dengan struktur yang divalidasi aman oleh CloudConvert API v2
+    // Buat job dengan tambahan task delete untuk menjaga privasi data
     const job = await cloudconvert.jobs.create({
       tasks: {
         "upload-file": {
@@ -45,6 +45,10 @@ module.exports = async (req, res) => {
         "export-file": {
           operation: "export/url",
           input: "convert-file"
+        },
+        "delete-file": {
+          operation: "delete",
+          input: ["upload-file", "convert-file"]
         }
       }
     });
