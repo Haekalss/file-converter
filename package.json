@@ -2,9 +2,6 @@
   "name": "pixel-converter",
   "version": "1.0.0",
   "main": "api/convert.js",
-  "engines": {
-    "node": "18.x"
-  },
   "dependencies": {
     "cloudconvert": "^3.0.0"
   }
