@@ -48,6 +48,7 @@ A high-performance, privacy-focused document conversion web application built wi
 ```
 
 **Installation & Local Development**
+```
 1. Clone the repository:
 ```text
 git clone [https://github.com/your-username/your-repo-name.git](https://github.com/your-username/your-repo-name.git)
@@ -57,7 +58,7 @@ cd your-repo-name
 ```text
 npm install
 ```
-3. Set up environment variables:
+3. Set up environment variables:\
 Create a .env file in the root directory and add your CloudConvert API key:
 ```text
 CLOUDCONVERT_API_KEY=your_api_key_here
