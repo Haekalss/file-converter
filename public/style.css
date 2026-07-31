@@ -1,0 +1,293 @@
+:root {
+  --bg-color: #e2e8f0;
+  --card-bg: #ffffff;
+  --border-color: #0f172a;
+  --primary: #2563eb;
+  --primary-hover: #1d4ed8;
+  --success: #059669;
+  --danger: #dc2626;
+  --text-main: #0f172a;
+  --text-muted: #64748b;
+  --input-bg: #f8fafc;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  background-color: var(--bg-color);
+  background-image: 
+    linear-gradient(90deg, #cbd5e1 1px, transparent 1px),
+    linear-gradient(0deg, #cbd5e1 1px, transparent 1px);
+  background-size: 24px 24px;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  color: var(--text-main);
+}
+
+.container {
+  background: var(--card-bg);
+  border: 3px solid var(--border-color);
+  box-shadow: 6px 6px 0px 0px var(--border-color);
+  border-radius: 6px;
+  padding: 28px;
+  width: 100%;
+  max-width: 680px;
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding: 20px;
+    box-shadow: 4px 4px 0px 0px var(--border-color);
+    max-width: 100%;
+  }
+}
+
+.header {
+  border-bottom: 2px dashed var(--border-color);
+  padding-bottom: 14px;
+  margin-bottom: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.header h1 {
+  font-family: 'Press Start 2P', monospace;
+  color: var(--border-color);
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.upload-area {
+  border: 2px dashed var(--border-color);
+  border-radius: 4px;
+  padding: 26px 16px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: var(--input-bg);
+  margin-bottom: 18px;
+}
+
+.upload-area:hover, .upload-area.dragover {
+  border-color: var(--primary);
+  background: #eff6ff;
+}
+
+.upload-area .icon {
+  font-size: 30px;
+  margin-bottom: 8px;
+}
+
+.upload-area p {
+  color: var(--text-muted);
+  font-size: 13px;
+  margin: 4px 0;
+}
+
+.upload-area p.main-text {
+  color: var(--border-color);
+  font-weight: 700;
+  font-size: 14px;
+}
+
+#fileInput {
+  display: none;
+}
+
+.panel-card {
+  background: var(--input-bg);
+  border: 2px solid var(--border-color);
+  border-radius: 4px;
+  padding: 16px;
+  margin-bottom: 16px;
+  display: none;
+}
+
+.panel-card.show {
+  display: block;
+}
+
+.file-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.file-name {
+  font-weight: 700;
+  color: var(--primary);
+  word-break: break-all;
+  font-size: 14px;
+  font-family: 'Share Tech Mono', monospace;
+}
+
+.file-size {
+  font-size: 12px;
+  color: var(--text-muted);
+  font-family: 'Share Tech Mono', monospace;
+}
+
+.format-selector label {
+  display: block;
+  color: var(--border-color);
+  font-weight: 700;
+  margin-bottom: 8px;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-family: 'Share Tech Mono', monospace;
+}
+
+.format-selector select {
+  width: 100%;
+  padding: 12px;
+  border: 2px solid var(--border-color);
+  border-radius: 4px;
+  font-size: 14px;
+  background: #ffffff;
+  color: var(--text-main);
+  font-family: 'Share Tech Mono', monospace;
+  cursor: pointer;
+  outline: none;
+  font-weight: bold;
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%230f172a' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 16px;
+}
+
+.format-selector select:focus {
+  border-color: var(--primary);
+  box-shadow: 2px 2px 0px 0px var(--border-color);
+}
+
+.btn-group {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-top: 20px;
+}
+
+@media (max-width: 600px) {
+  .btn-group {
+    grid-template-columns: 1fr;
+  }
+}
+
+button {
+  padding: 12px 16px;
+  border: 2px solid var(--border-color);
+  border-radius: 4px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.1s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-shadow: 3px 3px 0px 0px var(--border-color);
+  text-transform: uppercase;
+}
+
+button:active:not(:disabled) {
+  transform: translate(2px, 2px);
+  box-shadow: 1px 1px 0px 0px var(--border-color);
+}
+
+.btn-select {
+  background: #e2e8f0;
+  color: var(--border-color);
+}
+.btn-select:hover { background: #cbd5e1; }
+
+.btn-convert {
+  background: var(--primary);
+  color: #fff;
+  grid-column: span 2;
+}
+@media (max-width: 600px) {
+  .btn-convert { grid-column: span 1; }
+}
+.btn-convert:hover:not(:disabled) { background: var(--primary-hover); }
+.btn-convert:disabled {
+  background: #94a3b8;
+  border-color: #64748b;
+  color: #e2e8f0;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.btn-download {
+  background: var(--success);
+  color: #fff;
+  grid-column: span 2;
+}
+@media (max-width: 600px) {
+  .btn-download { grid-column: span 1; }
+}
+.btn-download:hover { background: #047857; }
+
+.btn-reset {
+  background: var(--danger);
+  color: #fff;
+}
+.btn-reset:hover { background: #b91c1c; }
+
+.status {
+  text-align: center;
+  margin-top: 16px;
+  padding: 12px;
+  border: 2px solid var(--border-color);
+  border-radius: 4px;
+  display: none;
+  font-size: 13px;
+  font-family: 'Share Tech Mono', monospace;
+  font-weight: bold;
+  box-shadow: 2px 2px 0px 0px var(--border-color);
+}
+
+.status.show { display: block; }
+.status.loading { background: #e0f2fe; color: #0369a1; border-color: #0369a1; }
+.status.success { background: #d1fae5; color: #065f46; border-color: #059669; }
+.status.error { background: #fee2e2; color: #991b1b; border-color: #dc2626; }
+
+.spinner {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border: 2px solid rgba(3, 105, 161, 0.3);
+  border-top: 2px solid #0369a1;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  vertical-align: middle;
+  margin-right: 6px;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.info-footer {
+  margin-top: 20px;
+  border-top: 2px solid #cbd5e1;
+  padding-top: 12px;
+  font-size: 11px;
+  color: var(--text-muted);
+  text-align: center;
+  font-family: 'Share Tech Mono', monospace;
+}
