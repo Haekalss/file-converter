@@ -159,12 +159,16 @@ async function convertFile() {
 
 function downloadFile() {
   if (!downloadUrl) return;
-
-  window.open(downloadUrl, '_blank');
-
+  const a = document.createElement('a');
+  a.href = downloadUrl;
+  a.download = outputFileName || 'hasil-konversi';
+  a.target = '_blank'; 
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
   setTimeout(() => {
     resetForm();
-  }, 1000);
+  }, 3000); 
 }
 
 function resetForm() {
