@@ -2,31 +2,44 @@ const CloudConvert = require('cloudconvert');
 
 const cloudconvert = new CloudConvert(process.env.CLOUDCONVERT_API_KEY);
 
-export default async function handler(req, res) {
+module.exports = async (req, res) => {
+  // Atur CORS agar aman diakses frontend
+  res.setHeader('Access-Control-Allow-Credentials', true);
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
+  res.setHeader(
+    'Access-Control-Allow-Headers',
+    'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version'
+  );
+
+  if (req.method === 'OPTIONS') {
+    res.status(200).end();
+    return;
+  }
+
   if (req.method !== 'POST') {
-    res.setHeader('Allow', ['POST']);
-    return res.status(405).json({ error: `Method ${req.method} Not Allowed` });
+    return res.status(405).json({ success: false, error: 'Method not allowed' });
   }
 
   try {
-    const { inputFormat, outputFormat, fileBase64, fileName } = req.body;
+    const { inputFormat, outputFormat, fileName } = req.body;
 
-    if (!fileBase64) {
-      return res.status(400).json({ error: 'File tidak ditemukan.' });
+    if (!inputFormat || !outputFormat) {
+      return res.status(400).json({ success: false, error: 'Format input dan output wajib diisi.' });
     }
 
-    let job = await cloudconvert.jobs.create({
+    // Buat job di CloudConvert dengan tasks: import (upload), convert, dan export (url)
+    const job = await cloudconvert.jobs.create({
       tasks: {
         'import-my-file': {
-          operation: 'import/base64',
-          file: fileBase64,
-          filename: fileName || `document.${inputFormat}`
+          operation: 'import/upload'
         },
         'convert-my-file': {
           operation: 'convert',
           input: 'import-my-file',
           input_format: inputFormat,
-          output_format: outputFormat
+          output_format: outputFormat,
+          engine: 'default'
         },
         'export-my-file': {
           operation: 'export/url',
@@ -35,28 +48,23 @@ export default async function handler(req, res) {
       }
     });
 
-    job = await cloudconvert.jobs.wait(job.id);
+    // Ambil task upload untuk diberikan ke frontend
+    const uploadTask = job.tasks.find(task => task.name === 'import-my-file');
 
-    const exportTask = job.tasks.find(task => task.operation === 'export/url' && task.status === 'finished');
-    
-    if (!exportTask || !exportTask.result.files.length) {
-      throw new Error('Gagal mengekspor file hasil konversi.');
-    }
-
-    const fileUrl = exportTask.result.files[0].url;
-    const outputFileName = exportTask.result.files[0].filename;
-
-    return res.status(200).json({ 
-      success: true, 
-      fileUrl: fileUrl,
-      fileName: outputFileName 
+    return res.status(200).json({
+      success: true,
+      data: {
+        jobId: job.id,
+        uploadUrl: uploadTask.result.form.url,
+        uploadParameters: uploadTask.result.form.parameters
+      }
     });
 
   } catch (error) {
-    console.error('CloudConvert Error:', error);
+    console.error('CloudConvert API Error:', error);
     return res.status(500).json({ 
       success: false, 
-      error: error.message || 'Terjadi kesalahan saat memproses konversi file.' 
+      error: error.message || 'Terjadi kesalahan pada server.' 
     });
   }
-}
+};

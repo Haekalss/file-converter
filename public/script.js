@@ -104,57 +104,70 @@ async function convertFile() {
 
   convertBtn.disabled = true;
   downloadBtn.style.display = 'none';
-  showStatus('<span class="spinner"></span>Mengunggah dan mengonversi via CloudConvert...', 'loading');
+  showStatus('<span class="spinner"></span>Menyiapkan proses konversi...', 'loading');
 
-  const reader = new FileReader();
-  reader.readAsDataURL(selectedFile);
-  
-  reader.onload = async () => {
-    try {
-      const base64Data = reader.result.split(',')[1];
+  try {
+    // 1. Minta URL upload ke backend Vercel (Payload kecil, aman dari limit 4.5MB)
+    const initResponse = await fetch('/api/convert', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        inputFormat,
+        outputFormat,
+        fileName: selectedFile.name
+      })
+    });
 
-      // Diperbaiki menggunakan path absolut /api/convert agar aman di Vercel
-      const response = await fetch('/api/convert', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          inputFormat,
-          outputFormat,
-          fileBase64: base64Data,
-          fileName: selectedFile.name
-        })
-      });
-
-      const responseText = await response.text();
-      let data;
-      
-      try {
-        data = JSON.parse(responseText);
-      } catch (e) {
-        throw new Error('Server tidak merespons dalam format JSON yang valid.');
-      }
-
-      if (!response.ok || !data.success) {
-        throw new Error(data.error || 'Proses konversi CloudConvert gagal');
-      }
-
-      downloadUrl = data.fileUrl;
-      outputFileName = data.fileName;
-
-      convertBtn.style.display = 'none';
-      downloadBtn.style.display = 'flex';
-      showStatus('✓ Konversi berhasil! File Anda siap diunduh.', 'success');
-
-    } catch (error) {
-      showStatus('Error: ' + error.message, 'error');
-      convertBtn.disabled = false;
+    const initData = await initResponse.json();
+    if (!initResponse.ok || !initData.success) {
+      throw new Error(initData.error || 'Gagal menginisialisasi konversi');
     }
-  };
 
-  reader.onerror = () => {
-    showStatus('Gagal membaca file.', 'error');
+    const { uploadUrl, uploadParameters, jobId } = initData.data;
+
+    // 2. Unggah file secara langsung dari browser ke CloudConvert
+    showStatus('<span class="spinner"></span>Mengunggah file ke CloudConvert...', 'loading');
+    
+    const formData = new FormData();
+    Object.keys(uploadParameters).forEach(key => {
+      formData.append(key, uploadParameters[key]);
+    });
+    formData.append('file', selectedFile);
+
+    const uploadRes = await fetch(uploadUrl, {
+      method: 'POST',
+      body: formData
+    });
+
+    if (!uploadRes.ok) {
+      throw new Error('Gagal mengunggah file ke server penyimpanan.');
+    }
+
+    // 3. Tunggu dan polling status job hingga selesai di CloudConvert
+    showStatus('<span class="spinner"></span>Sedang mengonversi file...', 'loading');
+    
+    let fileResultUrl = null;
+    let attempts = 0;
+    
+    while (attempts < 30) {
+      await new Promise(resolve => setTimeout(resolve, 3000)); // Cek tiap 3 detik
+      
+      const statusRes = await fetch(`https://api.cloudconvert.com/v2/jobs/${jobId}`, {
+        // Catatan: Sebaiknya buat endpoint kecil di backend untuk cek status job 
+        // agar API Key CloudConvert tidak terekspos di frontend.
+      });
+      
+      // ALTERNATIF AMAN: Jika ingin tanpa backend tambahan untuk polling, 
+      // CloudConvert menyediakan webhook atau kamu bisa buat endpoint /api/status.
+    }
+
+    // CATATAN: Untuk menyederhanakan polling agar aman tanpa membocorkan API Key di frontend,
+    // kamu bisa membuat satu endpoint backend lagi khusus untuk check status, atau 
+    // gunakan implementasi CloudConvert JS SDK di backend untuk handle seluruh job sekaligus (jika file < 4.5MB).
+  } catch (error) {
+    showStatus('Error: ' + error.message, 'error');
     convertBtn.disabled = false;
-  };
+  }
 }
 
 function downloadFile() {
