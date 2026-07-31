@@ -55,7 +55,7 @@ function handleFiles(files) {
   selectedFile = files[0];
   
   if (selectedFile.size > 100 * 1024 * 1024) {
-    showStatus('Gagal: Ukuran file melebihi batas maksimal 100MB.', 'error');
+    showStatus('Failed: File size exceeds the maximum limit of 100MB.', 'error');
     selectedFile = null;
     return;
   }
@@ -90,13 +90,13 @@ function loadFormats(fileExt) {
 
 async function convertFile() {
   if (!selectedFile) {
-    showStatus('Pilih file dokumen terlebih dahulu.', 'error');
+    showStatus('Please select a document file first.', 'error');
     return;
   }
 
   const outputFormat = outputFormatSelect.value;
   if (!outputFormat) {
-    showStatus('Pilih format target output.', 'error');
+    showStatus('Please select a target output format.', 'error');
     return;
   }
 
@@ -104,7 +104,7 @@ async function convertFile() {
 
   convertBtn.disabled = true;
   downloadBtn.style.display = 'none';
-  showStatus('<span class="spinner"></span>Menyiapkan proses konversi...', 'loading');
+  showStatus('<span class="spinner"></span>Preparing conversion process...', 'loading');
 
   try {
     // 1. Minta URL upload ke backend Vercel (Aman dari limit 4.5MB karena payload kecil)
@@ -124,17 +124,17 @@ async function convertFile() {
     try {
       initData = JSON.parse(responseText);
     } catch (e) {
-      throw new Error('Server tidak merespons dalam format JSON yang valid.');
+      throw new Error('Server did not respond with a valid JSON format.');
     }
 
     if (!initResponse.ok || !initData.success) {
-      throw new Error(initData.error || 'Gagal menginisialisasi konversi');
+      throw new Error(initData.error || 'Failed to initialize conversion.');
     }
 
     const { uploadUrl, uploadParameters, jobId } = initData.data;
 
     // 2. Unggah file secara langsung dari browser ke CloudConvert
-    showStatus('<span class="spinner"></span>Mengunggah file ke CloudConvert...', 'loading');
+    showStatus('<span class="spinner"></span>Uploading file to CloudConvert...', 'loading');
     
     const formData = new FormData();
     Object.keys(uploadParameters).forEach(key => {
@@ -148,11 +148,11 @@ async function convertFile() {
     });
 
     if (!uploadRes.ok) {
-      throw new Error('Gagal mengunggah file ke server penyimpanan CloudConvert.');
+      throw new Error('Failed to upload file to CloudConvert storage server.');
     }
 
     // 3. Polling status konversi melalui backend Vercel (/api/status) agar aman dari 401
-    showStatus('<span class="spinner"></span>Sedang mengonversi file...', 'loading');
+    showStatus('<span class="spinner"></span>Converting file...', 'loading');
     
     let fileResultUrl = null;
     let outputFileNameResult = null;
@@ -165,7 +165,7 @@ async function convertFile() {
       const statusData = await statusRes.json();
 
       if (!statusRes.ok || !statusData.success) {
-        throw new Error(statusData.error || 'Gagal mengecek status konversi.');
+        throw new Error(statusData.error || 'Failed to check conversion status.');
       }
 
       if (statusData.status === 'finished') {
@@ -175,14 +175,14 @@ async function convertFile() {
       }
 
       if (statusData.status === 'error') {
-        throw new Error('Proses konversi gagal diproses oleh CloudConvert.');
+        throw new Error('Conversion process failed on CloudConvert.');
       }
 
       attempts++;
     }
 
     if (!fileResultUrl) {
-      throw new Error('Waktu konversi habis (Timeout). Silakan coba lagi.');
+      throw new Error('Conversion timeout. Please try again.');
     }
 
     downloadUrl = fileResultUrl;
@@ -190,7 +190,7 @@ async function convertFile() {
 
     convertBtn.style.display = 'none';
     downloadBtn.style.display = 'flex';
-    showStatus('✓ Konversi berhasil! File Anda siap diunduh.', 'success');
+    showStatus('✓ Conversion successful! Your file is ready for download.', 'success');
 
   } catch (error) {
     showStatus('Error: ' + error.message, 'error');
@@ -203,7 +203,7 @@ function downloadFile() {
 
   const a = document.createElement('a');
   a.href = downloadUrl;
-  a.download = outputFileName || 'hasil-konversi';
+  a.download = outputFileName || 'converted-file';
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
