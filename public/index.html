@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>DocConverter</title>
+  <title>Convert Station</title>
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Press+Start+2P&family=Share+Tech+Mono&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/style.css">
@@ -11,48 +11,47 @@
 <body>
   <div class="container">
     <div class="header">
-      <h1>DocConverter</h1>
+      <h1>Convert Station</h1>
     </div>
 
-    <!-- Area Unggah File -->
+    <!-- Upload Area -->
     <div class="upload-area" id="uploadArea">
-      <div class="icon">📁</div>
-      <p class="main-text">Klik untuk memilih file atau seret ke sini</p>
-      <p>Mendukung Dokumen Word, Excel, PowerPoint, PDF, & Teks (Maks. 100MB)</p>
+      <p class="main-text">Click to browse or drag and drop your file here</p>
+      <p>Supports Word, Excel, PowerPoint, PDF, & Text documents (Max. 100MB)</p>
     </div>
 
-    <input type="file" id="fileInput">
+    <input type="file" id="fileInput" hidden>
 
-    <!-- Panel Informasi File Terpilih -->
+    <!-- Selected File Info Panel -->
     <div class="panel-card" id="fileInfo">
       <div class="file-meta">
         <div>
-          <span style="font-size: 11px; color: var(--text-muted); display: block; font-family: 'Share Tech Mono';">FILE TERDETEKSI:</span>
+          <span style="font-size: 11px; color: var(--text-muted); display: block; font-family: 'Share Tech Mono';">DETECTED FILE:</span>
           <span class="file-name" id="fileName">document.docx</span>
         </div>
         <span class="file-size" id="fileSize">0.00 MB</span>
       </div>
     </div>
 
-    <!-- Panel Pemilihan Format Target -->
+    <!-- Target Format Selector Panel -->
     <div class="panel-card format-selector" id="formatSelector">
-      <label for="outputFormat">> Pilih Format Konversi Target:</label>
+      <label for="outputFormat">> Select Target Format:</label>
       <select id="outputFormat"></select>
     </div>
 
-    <!-- Status Proses -->
+    <!-- Process Status -->
     <div class="status" id="status"></div>
 
-    <!-- Tombol Aksi Utama -->
+    <!-- Main Action Buttons -->
     <div class="btn-group">
-      <button class="btn-select" onclick="triggerFileInput()">📂 Ganti File</button>
-      <button class="btn-reset" onclick="resetForm()">↺ Reset</button>
-      <button class="btn-convert" id="convertBtn" onclick="convertFile()" disabled>⚡ Mulai Konversi Dokumen</button>
-      <button class="btn-download" id="downloadBtn" onclick="downloadFile()" style="display:none;">📥 Unduh Hasil Konversi</button>
+      <button class="btn-select" onclick="triggerFileInput()">Change File</button>
+      <button class="btn-reset" onclick="resetForm()">Reset</button>
+      <button class="btn-convert" id="convertBtn" onclick="convertFile()" disabled>Start Conversion</button>
+      <button class="btn-download" id="downloadBtn" onclick="downloadFile()" style="display:none;">Download Converted File</button>
     </div>
 
     <div class="info-footer">
-      Format output otomatis disesuaikan dengan kapabilitas engine sistem.
+      Output formats are automatically adjusted based on system engine capabilities.
     </div>
   </div>
 
