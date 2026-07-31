@@ -75,7 +75,6 @@ function handleFiles(files) {
 function loadFormats(fileExt) {
   outputFormatSelect.innerHTML = '';
   
-  // Ambil daftar format tujuan berdasarkan ekstensi file, atau sediakan default umum
   const availableFormats = conversionMap[fileExt] || ['pdf', 'docx', 'txt'];
 
   availableFormats.forEach(format => {
@@ -107,7 +106,6 @@ async function convertFile() {
   downloadBtn.style.display = 'none';
   showStatus('<span class="spinner"></span>Mengunggah dan mengonversi via CloudConvert...', 'loading');
 
-  // Ubah file ke Base64 agar aman dikirim ke Vercel Serverless Function
   const reader = new FileReader();
   reader.readAsDataURL(selectedFile);
   
@@ -115,6 +113,7 @@ async function convertFile() {
     try {
       const base64Data = reader.result.split(',')[1];
 
+      // Diperbaiki menggunakan path absolut /api/convert agar aman di Vercel
       const response = await fetch('/api/convert', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -161,7 +160,6 @@ async function convertFile() {
 function downloadFile() {
   if (!downloadUrl) return;
 
-  // Langsung buka URL hasil konversi dari CloudConvert di tab baru / unduh otomatis
   window.open(downloadUrl, '_blank');
 
   setTimeout(() => {
